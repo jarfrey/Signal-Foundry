@@ -94,3 +94,13 @@ SELECT company_id, slug, display_name, industry, employee_est, created_at FROM c
 
 
 -- signals (for later)
+
+
+-- SELECT 
+--     company_name,
+--     COUNT(CASE WHEN posted_date >= CURRENT_DATE - INTERVAL '30 days' THEN 1 END) AS current_30d_count,
+--     COUNT(CASE WHEN posted_date BETWEEN CURRENT_DATE - INTERVAL '90 days' AND CURRENT_DATE - INTERVAL '30 days' THEN 1 END) AS prev_60d_count,
+--     MAX(posted_date) AS latest_posting_date
+-- FROM job_listings
+-- WHERE company_name = 'Stripe'
+-- GROUP BY company_name;

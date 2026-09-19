@@ -11,7 +11,11 @@
 
 // public class Lever {
 
+<<<<<<< HEAD
 //     public static List<Posting> fetch(String handle) throws Exception {
+=======
+    public List<Posting> fetch(String handle) throws Exception {
+>>>>>>> 299aa1af539cd2e049d3deae7975b16a68fe3fae
 
 //         // 1. download
 //         String url = "https://api.lever.co/v0/postings/" + handle + "?mode=json";
@@ -29,9 +33,18 @@
 //             throw new RuntimeException(handle + " gave HTTP " + response.statusCode());
 //         }
 
+<<<<<<< HEAD
 //         // 2. one chunk per job
 
 //         List<String> chunks = Parser.split(response.body(), "\"chunk\"");
+=======
+        // TODO: replace with path to json file, using the sample file I have for now
+        Parser parse = new Parser(response.body());
+
+        // 2. one chunk per job
+
+        List<String> chunks = parse.split_String();
+>>>>>>> 299aa1af539cd2e049d3deae7975b16a68fe3fae
 
 //         // 3. pull the fields out of each chunk
 
@@ -41,11 +54,19 @@
 
 //             Posting p = new Posting();
 
+<<<<<<< HEAD
 //             p.source      = "lever";
 //             p.company     = handle;
 //             p.title       = Parser.text(chunk, "\"text\":");
 //             p.locationRaw = Parser.text(chunk, "\"location\":");
 //             p.postedAt    = toDate(Parser.number(chunk, "\"createdAt\":"));
+=======
+            p.source      = "lever";
+            p.company     = handle;
+            p.title       = parse.getString(chunk, "title");
+            p.locationRaw = parse.getString(chunk, "location");
+            p.postedAt    = toDate(parse.getString(chunk, "first_published"));
+>>>>>>> 299aa1af539cd2e049d3deae7975b16a68fe3fae
 
 //             // the id sits right before hostedUrl, so grab it from the URL itself
 //             p.url        = firstQuoted(chunk);

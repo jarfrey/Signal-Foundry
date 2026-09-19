@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS posting (
   external_id     TEXT NOT NULL,
   title           TEXT,
   location_raw    TEXT,
-  department_raw  TEXT,
+  department_raw  TEXT, 
   description     TEXT,
   url             TEXT,
   posted_at       TEXT,

@@ -7,14 +7,22 @@ import org.json.*;
 
 public class Parser {
 
+    private String str;
+    private JSONObject json;
+
 
     public Parser (String filename) throws IOException{
         // get the file
         Path name = Path.of(filename);
         // read the file to a string
-        String str = Files.readString(name);
+        str = Files.readString(name);
 
-        System.out.println(str);
+        json = new JSONObject(str);
+
+        JSONArray key1 = json.getJSONArray("jobs");
+
+        System.out.println(key1);
+
     }
 }
 

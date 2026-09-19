@@ -3,12 +3,15 @@ package predictbackend;// max
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+
 import org.json.*;
 
 public class Parser {
 
     private String str;
-    private JSONObject json;
+    private final JSONObject json;
+    private final JSONArray jobs;
 
 
     public Parser (String filename) throws IOException{
@@ -19,10 +22,33 @@ public class Parser {
 
         json = new JSONObject(str);
 
-        JSONArray key1 = json.getJSONArray("jobs");
+        jobs = json.getJSONArray("jobs");
+    }
 
-        System.out.println(key1);
+    public ArrayList<JSONObject> split_JSONObject() {
 
+        ArrayList<JSONObject> split_array = new ArrayList<>(jobs.length());
+        for (int i = 0; i < jobs.length(); i++) {
+            split_array.add(jobs.getJSONObject(i));
+        }
+
+        for (JSONObject obj : split_array) {
+            String str = obj.toString();
+            System.out.println(str);
+        }
+
+        return split_array;
+    }
+
+    public ArrayList<String> split_String() {
+
+        ArrayList<String> split_array = new ArrayList<>(jobs.length());
+        for (int i = 0; i < jobs.length(); i++) {
+            split_array.add(jobs.getJSONObject(i).toString());
+            System.out.println(split_array.get(i));
+        }
+
+        return split_array;
     }
 }
 

@@ -1,3 +1,5 @@
+package predictbackend;
+
 public class Posting {
 
     public String postingId;       // "greenhouse:stripe:12345"

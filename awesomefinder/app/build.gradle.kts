@@ -21,7 +21,7 @@ dependencies {
     implementation("org.json:json:20260814")
 
     // This dependency is used by the application.
-    implementation(libs.guava)
+    implementation(libs.guava)  
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -33,5 +33,18 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = "org.example.App"
+
+    mainClass = "predictbackend.InsightGeneratorService"
+}
+
+tasks.named<JavaExec>("run") {
+    val envFile = rootProject.file(".env")
+    if (envFile.exists()) {
+        envFile.readLines().forEach { line ->
+            if (line.contains("=") && !line.trim().startsWith("#")) {
+                val (key, value) = line.split("=", limit = 2)
+                environment(key.trim(), value.trim().removeSurrounding("\""))
+            }
+        }
+    }
 }

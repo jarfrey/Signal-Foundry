@@ -1,3 +1,5 @@
+package predictbackend;
+
 import app.Posting;
 import java.util.List;
 import java.util.Set;

@@ -1,20 +1,20 @@
 // max
 
-import java.io.FileReader;
-import java.util.Iterator;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import org.json.*;
 
 public class Parser {
 
 
-    public parser (String filename) {
-        // init json parser
-        Object json_parse = new JSONParser().parse(new FileReader(filename));
-        JSONObject jo = (JSONObject) json_parse;
+    public Parser (String filename) throws IOException{
+        // get the file
+        Path name = Path.of(filename);
+        // read the file to a string
+        String str = Files.readString(name);
 
-
+        System.out.println(str);
     }
 }
 

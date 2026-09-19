@@ -1,3 +1,3 @@
-class greenhouse {
+public class greenhouse implements source {
 
 }

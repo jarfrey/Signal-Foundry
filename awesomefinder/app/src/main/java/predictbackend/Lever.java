@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Lever {
 
-    public static List<Posting> fetch(String handle) throws Exception {
+    public List<Posting> fetch(String handle) throws Exception {
 
         // 1. download
         String url = "https://api.lever.co/v0/postings/" + handle + "?mode=json";
@@ -29,9 +29,12 @@ public class Lever {
             throw new RuntimeException(handle + " gave HTTP " + response.statusCode());
         }
 
+        // TODO: replace with path to json file, using the sample file I have for now
+        Parser parse = new Parser(response.body());
+
         // 2. one chunk per job
 
-        List<String> chunks = Parser.split(body, "\"chunk\"");
+        List<String> chunks = parse.split_String();
 
         // 3. pull the fields out of each chunk
 
@@ -43,9 +46,9 @@ public class Lever {
 
             p.source      = "lever";
             p.company     = handle;
-            p.title       = Parser.text(chunk, "\"text\":");
-            p.locationRaw = Parser.text(chunk, "\"location\":");
-            p.postedAt    = toDate(Parser.number(chunk, "\"createdAt\":"));
+            p.title       = parse.getString(chunk, "title");
+            p.locationRaw = parse.getString(chunk, "location");
+            p.postedAt    = toDate(parse.getString(chunk, "first_published"));
 
             // the id sits right before hostedUrl, so grab it from the URL itself
             p.url        = firstQuoted(chunk);

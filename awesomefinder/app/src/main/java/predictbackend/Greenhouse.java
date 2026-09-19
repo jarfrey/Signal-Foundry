@@ -10,7 +10,7 @@ import java.util.List;
 public class Greenhouse {
 
     /** Download one company's job board and return the postings. */
-    public static List<Posting> fetch(String handle) throws Exception {
+    public List<Posting> fetch(String handle) throws Exception {
 
         // 1. download
         String url = "https://boards-api.greenhouse.io/v1/boards/" + handle + "/jobs";
@@ -27,8 +27,10 @@ public class Greenhouse {
             throw new RuntimeException(handle + " gave HTTP " + response.statusCode());
         }
 
+        Parser parse = new Parser(response.body());
+
         // 2. one chunk per job
-        List<String> chunks = Parser.split(response.body(), "\"chunk\"");
+        List<String> chunks = parse.split_String();
 
         // 3. pull the fields out of each chunk
         List<Posting> postings = new ArrayList<>();
@@ -38,12 +40,12 @@ public class Greenhouse {
 
             p.source      = "greenhouse";
             p.company     = handle;
-            p.externalId  = Parser.number(chunk, "\"id\":");
+            p.externalId  = parse.getString(chunk, "id");
             p.postingId   = "greenhouse:" + handle + ":" + p.externalId;
-            p.title       = Parser.text(chunk, "\"title\":");
-            p.url         = Parser.text(chunk, "\"absolute_url\":");
-            p.locationRaw = Parser.text(chunk, "\"name\":");
-            p.postedAt    = Parser.text(chunk, "\"updated_at\":"); //this is updated not posted
+            p.title       = parse.getString(chunk, "text");
+            p.url         = parse.getString(chunk, "hostedUrl");
+            p.locationRaw = parse.getString(chunk, "country");
+//            p.postedAt    = parse.getString(chunk, "\"updated_at\":"); //this is updated not posted
 
             if (!p.title.isEmpty()) {
                 postings.add(p);

@@ -19,7 +19,7 @@ dependencies {
     // Use JUnit test framework.
     testImplementation(libs.junit)
     implementation("org.json:json:20260814")
-
+    implementation("org.postgresql:postgresql:42.7.2")
     // This dependency is used by the application.
     implementation(libs.guava)  
 }

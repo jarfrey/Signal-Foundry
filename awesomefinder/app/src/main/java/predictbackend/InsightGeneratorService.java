@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 
 public class InsightGeneratorService {
 
@@ -77,4 +78,27 @@ public class InsightGeneratorService {
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     return response.body();
   }
+
+  public static String signalsJson(String company, List<Signal> signals) {
+        org.json.JSONArray arr = new org.json.JSONArray();
+        for (Signal s : signals) {
+            if (!s.company.isEmpty() && !s.company.equals(company)) continue;
+            org.json.JSONObject o = new org.json.JSONObject();
+            o.put("kind", s.kind);
+            o.put("claim", s.claim);
+            o.put("confidence", s.confidence);
+            org.json.JSONArray ev = new org.json.JSONArray();
+            for (Posting p : s.evidence) {
+                org.json.JSONObject e = new org.json.JSONObject();
+                e.put("postingId", p.postingId);
+                e.put("title", p.title);
+                e.put("location", p.locationRaw);
+                e.put("url", p.url == null ? "" : p.url);
+                ev.put(e);
+            }
+            o.put("evidence", ev);
+            arr.put(ev.isEmpty() ? o : o);
+        }
+        return arr.toString();
+    }
 }

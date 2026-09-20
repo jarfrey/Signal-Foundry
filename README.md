@@ -47,7 +47,7 @@ deterministic summaries built from the same statistics, and both the API
 (`insightSource`) and the UI (a `Computed` vs `Nemotron` badge on each card)
 say which you are looking at, so a fallback is never mistaken for model output.
 
-### A gotcha worth knowing
+### Nemotron concurrent reasoning
 
 Nemotron 3 is a **reasoning model**: `max_tokens` has to cover its internal
 reasoning *as well as* the answer. At 700 the larger prompts spent the whole

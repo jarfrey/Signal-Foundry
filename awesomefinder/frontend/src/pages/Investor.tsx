@@ -7,10 +7,16 @@ type Sort = 'velocity' | 'volume'
 
 export default function Investor() {
   const [trends, setTrends] = useState<CompanyTrend[]>([])
+  const [live, setLive] = useState(true)
+  const [loading, setLoading] = useState(true)
   const [sort, setSort] = useState<Sort>('velocity')
 
   useEffect(() => {
-    getCompanyTrends().then(setTrends)
+    getCompanyTrends().then((result) => {
+      setTrends(result.trends)
+      setLive(result.live)
+      setLoading(false)
+    })
   }, [])
 
   const ordered = useMemo(
@@ -29,6 +35,10 @@ export default function Investor() {
     [trends]
   )
 
+  // True only if every card came back with a model-written read.
+  const allModelWritten =
+    trends.length > 0 && trends.every((t) => t.insightSource === 'nemotron')
+
   return (
     <main className="shell dark">
       <nav className="topbar">
@@ -46,7 +56,8 @@ export default function Investor() {
         <h1>Hiring signals</h1>
         <p>
           {trends.length} companies · {totals.roles} open roles · {totals.fresh} posted in
-          the last 30 days. Velocity compares this month's openings against the prior one.
+          the last 30 days. Velocity compares roles posted in the last 30 days against the
+          30 days before that.
         </p>
 
         <div className="tabs">
@@ -60,22 +71,33 @@ export default function Investor() {
       </section>
 
       <section className="band" style={{ paddingTop: 22, paddingBottom: 60 }}>
+        {loading && <p className="empty">Reading the boards…</p>}
+
         <div className="grid">
           {ordered.map((company) => (
             <CompanyCard key={company.id} company={company} />
           ))}
         </div>
 
-        <p className="notice">
-          SAMPLE DATA — company reads are placeholders until /api/trends is wired up.
-        </p>
+        {!loading && !live && (
+          <p className="notice">
+            SAMPLE DATA — /api/trends is not responding. Run the backend to see real companies.
+          </p>
+        )}
+        {!loading && live && !allModelWritten && (
+          <p className="notice">
+            Some reads are computed summaries rather than Nemotron output — set
+            NEMOTRON_API_KEY and restart the backend for model-written analysis.
+          </p>
+        )}
       </section>
     </main>
   )
 }
 
 function CompanyCard({ company }: { company: CompanyTrend }) {
-  const direction = company.velocity > 10 ? 'up' : company.velocity < 0 ? 'down' : 'flat'
+  const direction =
+    company.trend === 'Growing' ? 'up' : company.trend === 'Cooling' ? 'down' : 'flat'
 
   return (
     <article className="co">
@@ -86,11 +108,21 @@ function CompanyCard({ company }: { company: CompanyTrend }) {
         </div>
         <div className={`velocity ${direction}`}>
           {company.velocity > 0 ? '+' : ''}
-          {company.velocity}%<span>30D</span>
+          {Math.round(company.velocity)}%<span>30D</span>
         </div>
       </div>
 
+      {company.headline && <p className="co-headline">{company.headline}</p>}
+
       <p className="co-read">{company.read}</p>
+
+      {company.bullets?.length > 0 && (
+        <ul className="co-bullets">
+          {company.bullets.map((bullet) => (
+            <li key={bullet}>{bullet}</li>
+          ))}
+        </ul>
+      )}
 
       <div className="bars">
         {company.mix.map((slice) => (
@@ -112,6 +144,9 @@ function CompanyCard({ company }: { company: CompanyTrend }) {
           <b>{company.newThisMonth}</b> new
         </span>
         <span>{company.topLocation}</span>
+        <span className={`prov ${company.insightSource}`}>
+          {company.insightSource === 'nemotron' ? 'Nemotron' : 'Computed'}
+        </span>
       </div>
     </article>
   )

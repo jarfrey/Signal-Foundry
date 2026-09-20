@@ -1,94 +1,60 @@
 package predictbackend;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONObject;
+
+/**
+ * Lever job board reader.
+ *
+ * Payload shape (verified against api.lever.co) is a bare top-level array:
+ *   [{ "id": "ac978161-...",
+ *      "text": "Administrative Business Partner",
+ *      "hostedUrl": "https://jobs.lever.co/palantir/ac978161-...",
+ *      "createdAt": 1711403416463,
+ *      "country": "GB",
+ *      "categories": {"location": "London, United Kingdom", "team": "Administrative"} }]
+ *
+ * Note Lever names its title field "text" and Greenhouse names its "title" --
+ * these two were previously swapped between the readers.
+ */
 public class Lever {
 
+    private static final String BASE = "https://api.lever.co/v0/postings/";
+
     public List<Posting> fetch(String handle) throws Exception {
+        String body = Http.get(BASE + handle + "?mode=json");
+        return parse(handle, body);
+    }
 
-        // 1. download
-        String url = "https://api.lever.co/v0/postings/" + handle + "?mode=json";
-
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("User-Agent", "steelhacks-project")
-                .header("Accept", "application/json")
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() != 200) {
-            throw new RuntimeException(handle + " gave HTTP " + response.statusCode());
-        }
-
-        // TODO: replace with path to json file, using the sample file I have for now
-        Parser parse = new Parser(response.body());
-
-        // 2. one chunk per job
-
-        List<String> chunks = parse.split_String();
-
-        // 3. pull the fields out of each chunk
-
+    /** Split out from fetch() so the parsing can be tested without the network. */
+    public List<Posting> parse(String handle, String body) {
         List<Posting> postings = new ArrayList<>();
 
-        for (String chunk : chunks) {
-
+        for (JSONObject job : new Parser(body).jobs()) {
             Posting p = new Posting();
 
             p.source = "lever";
             p.company = handle;
-            p.title = parse.getString(chunk, "title");
-            p.locationRaw = parse.getString(chunk, "location");
-            p.postedAt = toDate(parse.getString(chunk, "first_published"));
-
-            // the id sits right before hostedUrl, so grab it from the URL itself
-            p.url = firstQuoted(chunk);
-            p.externalId = idFromUrl(p.url);
+            p.externalId = Parser.str(job, "id");
             p.postingId = "lever:" + handle + ":" + p.externalId;
+            p.title = Parser.str(job, "text");
+            p.url = Parser.str(job, "hostedUrl");
+            p.locationRaw = Parser.nested(job, "categories", "location");
+            p.departmentRaw = Parser.nested(job, "categories", "team");
+            p.postedAt = Dates.fromEpochMillis(Parser.num(job, "createdAt", 0));
+            p.updatedAt = p.postedAt;
 
-            if (!p.title.isEmpty()) {
+            // Lever already resolves an ISO country code for most postings, so
+            // prefer it over guessing from the location string.
+            p.countryHint = Parser.str(job, "country");
+
+            if (!p.title.isEmpty() && !p.externalId.isEmpty()) {
                 postings.add(p);
             }
-
         }
 
         return postings;
-
     }
-
-    private static String firstQuoted(String chunk) {
-        int open = chunk.indexOf('"', chunk.indexOf(':') + 1);
-        if (open < 0)
-            return "";
-        int close = chunk.indexOf('"', open + 1);
-        if (close < 0)
-            return "";
-        return chunk.substring(open + 1, close);
-    }
-
-    private static String idFromUrl(String url) {
-        if (url.isEmpty())
-            return "";
-        int slash = url.lastIndexOf('/');
-        return slash < 0 ? "" : url.substring(slash + 1);
-    }
-
-    private static String toDate(String millis) {
-        if (millis.isEmpty())
-            return null;
-        try {
-            long ms = Long.parseLong(millis);
-            return ms <= 0 ? null : Instant.ofEpochMilli(ms).toString();
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
 }

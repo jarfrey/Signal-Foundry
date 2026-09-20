@@ -3,8 +3,6 @@ import { ArrowLeft, ArrowUpRight, Search, Upload } from 'lucide-react'
 import { getJobs, rankJobs } from '../api'
 import type { Job, ScoredJob } from '../types'
 
-const DEPARTMENTS = ['All roles', 'Engineering', 'Product', 'Strategy', 'Sales']
-
 export default function Applicant() {
   const [jobs, setJobs] = useState<Job[]>([])
   const [live, setLive] = useState(true)
@@ -25,6 +23,24 @@ export default function Applicant() {
   useEffect(() => {
     if (!resume.trim()) setRanked(null)
   }, [resume])
+
+  // Build the filter tabs from what actually came back, so they always
+  // correspond to real postings.
+  const departments = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const job of jobs) {
+      if (job.department) counts.set(job.department, (counts.get(job.department) ?? 0) + 1)
+    }
+    const top = [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([name]) => name)
+    return ['All roles', ...top]
+  }, [jobs])
+
+  useEffect(() => {
+    if (!departments.includes(department)) setDepartment('All roles')
+  }, [departments, department])
 
   const visible = useMemo(() => {
     const list: (Job | ScoredJob)[] = ranked ?? jobs
@@ -109,7 +125,7 @@ export default function Applicant() {
         </div>
 
         <div className="tabs">
-          {DEPARTMENTS.map((name) => (
+          {departments.map((name) => (
             <button
               key={name}
               className={department === name ? 'on' : ''}
@@ -169,7 +185,13 @@ function JobRow({ job }: { job: Job | ScoredJob }) {
         <span>{job.department}</span>
         <span>{job.posted}</span>
       </div>
-      <a className="arrow" href={`#job-${job.id}`} aria-label={`View ${job.title}`}>
+      <a
+        className="arrow"
+        href={job.url || '#/applicant'}
+        target={job.url ? '_blank' : undefined}
+        rel={job.url ? 'noreferrer' : undefined}
+        aria-label={`View ${job.title} at ${job.company}`}
+      >
         <ArrowUpRight size={18} />
       </a>
     </article>

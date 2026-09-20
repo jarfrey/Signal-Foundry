@@ -5,8 +5,19 @@ public class Labeler {
     public static void label(Posting p) {
         p.seniority = seniority(p.title);
         p.function = function(p.title);
-        p.country = country(p.locationRaw);
+        p.country = country(p.locationRaw, p.countryHint);
         p.city = city(p.locationRaw);
+    }
+
+    /**
+     * Prefer the board's own country code when it gives one (Lever does),
+     * and only fall back to guessing from the free-text location.
+     */
+    public static String country(String location, String hint) {
+        if (hint != null && hint.length() == 2) {
+            return hint.toUpperCase();
+        }
+        return country(location);
     }
 
     public static String seniority(String title) {

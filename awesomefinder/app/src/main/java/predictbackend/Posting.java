@@ -10,9 +10,13 @@ public class Posting {
     public String locationRaw;     // "Remote - US", "London, UK"
     public String departmentRaw;
     public String url;
-    public String postedAt;        // ISO-8601 string, or null
+    public String postedAt;        // ISO-8601 UTC instant, or null
+    public String updatedAt;       // ISO-8601 UTC instant, or null
 
-    // label fields
+    /** ISO country code supplied by the board itself (Lever does this). */
+    public String countryHint;
+
+    // label fields, filled in by Labeler
     public String seniority;
     public String function;
     public String country;
@@ -22,5 +26,4 @@ public class Posting {
         return String.format("[%s] %s | %s | %s",
                 company, title, locationRaw, postedAt);
     }
-
 }

@@ -3,7 +3,6 @@ package predictbackend;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class Detector {
@@ -67,7 +66,7 @@ public class Detector {
 
         Set<String> combos = new HashSet<>();
         for (Posting p : postings) {
-            combos.add(p.function + "|" + p.company);
+            combos.add(p.function + "|" + p.country);
         }
 
         for (String combo : combos) {
@@ -87,9 +86,16 @@ public class Detector {
             }
 
             if (companies.size() >= 3) {
-                Signal s = new Signal("CONVERGENCE", "", companies.size() + " companies on the watchlist are all hiring " + function + " roles in " + country, 0.65);
-                s.evidence.addAll(hits.subList(0, Math.min(6, hits.size())));
-                out.add(s);
+                // One signal per company involved, so each investor card can
+                // show that its company is part of the cluster.
+                String named = String.join(", ", new java.util.TreeSet<>(companies));
+                String claim = companies.size() + " watchlist companies (" + named
+                        + ") are all hiring " + function + " roles in " + country;
+                for (String company : companies) {
+                    Signal s = new Signal("CONVERGENCE", company, claim, 0.65);
+                    s.evidence.addAll(hits.subList(0, Math.min(6, hits.size())));
+                    out.add(s);
+                }
             }
 
         }
@@ -125,7 +131,7 @@ public class Detector {
             }
 
             if (total >= 25 && here.size() >= 1 && here.size() <= 3) {
-                Signal s = new Signal("BEACHHEAD", company, company + "has only " + here.size() + " of " + total + " open roles in " + country + " - possible early market entry", 0.55);
+                Signal s = new Signal("BEACHHEAD", company, company + " has only " + here.size() + " of " + total + " open roles in " + country + " - possible early market entry", 0.55);
                 s.evidence.addAll(here);
                 out.add(s);
             }

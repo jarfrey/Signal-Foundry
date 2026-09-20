@@ -112,7 +112,7 @@ greenhouse  airbnb
 lever       palantir
 ```
 
-Not every company has a public board on both platforms — a handle that 404s is
+Not every company has a public board on both platforms - a handle that 404s is
 reported and skipped, and the rest of the run continues.
 
 ## Tests

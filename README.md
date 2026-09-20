@@ -1,9 +1,12 @@
-# Signal Foundry — Steelhacks 2026
+# Signal Foundry | Steelhacks 2026
+## Created by Team "Straight Up Hackin' It"
 
 Every job a company posts is a public statement about where it is spending next.
-This collects those postings from public job boards, works out whether each
-company is hiring faster or slower than it was, asks Nemotron what that pattern
-means, and serves both readings to a local website: open roles for applicants,
+Signal Foundry exists to reveal these trends.
+
+Signal Foundry collects postings from public job boards, categorizes postings and works
+out whether each company is hiring faster or slower than it was, asks Nemotron 
+what that pattern means, and serves both readings to a website: open roles for applicants,
 hiring signals for investors.
 
 ## Run it
@@ -86,7 +89,7 @@ Greenhouse / Lever JSON
 Each posting carries its own publish date from the board (`first_published` on
 Greenhouse, `createdAt` on Lever). Velocity is roles published in the last 30
 days against the 30 days before that, so a **single** scrape already yields a
-trend — you do not have to run this for a month before it says anything.
+trend; you do not have to run this for a month before it says anything.
 
 Repeated scrapes then add what one snapshot cannot see: `first_seen_at` /
 `last_seen_at` per posting means the second run onwards can tell which roles
@@ -97,20 +100,10 @@ and `closedThisMonth` starts reporting real numbers.
 Percentages on small numbers are noise, so a company needs at least 4 postings
 across the two windows before it is called anything but `Steady`.
 
-## API
-
-| Endpoint | Returns |
-|---|---|
-| `GET /api/health` | status, company + posting counts, whether a key is set |
-| `GET /api/jobs` | open postings, newest first, for the applicant list |
-| `GET /api/trends` | per-company stats plus the written read, for investors |
-| `GET /api/signals` | raw cross-company detector output |
-| `POST /api/refresh` | re-run ingestion without restarting |
-
 ## Which companies are tracked
 
 Six boards are built in (Stripe, Databricks, Figma, Discord, Robinhood on
-Greenhouse; Palantir on Lever). To change the set without rebuilding, create
+Greenhouse; Palantir, LinkedIn, GoPuff on Lever). To change the set without rebuilding, create
 `awesomefinder/watchlist.txt`:
 
 ```
@@ -130,3 +123,5 @@ cd awesomefinder && ./gradlew test
 
 Covers the two boards' differing JSON shapes, date normalisation, the velocity
 and trend arithmetic, and unwrapping the model response.
+
+This projected was created using AI assistance. 

@@ -123,5 +123,5 @@ cd awesomefinder && ./gradlew test
 
 Covers the two boards' differing JSON shapes, date normalisation, the velocity
 and trend arithmetic, and unwrapping the model response.
-
-This projected was created using AI assistance. 
+> [!note]
+> This projected was created using AI assistance. 

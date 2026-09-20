@@ -1,5 +1,6 @@
 # Signal Foundry | Steelhacks 2026
 ## Created by Team "Straight Up Hackin' It"
+## Jack Carfrey, Gideon Dayo, Lenny Scinto, Max Gallo
 
 Every job a company posts is a public statement about where it is spending next.
 Signal Foundry exists to reveal these trends.

@@ -23,6 +23,8 @@ public final class Watchlist {
             new Entry("greenhouse", "figma"),
             new Entry("greenhouse", "discord"),
             new Entry("greenhouse", "robinhood"),
+            new Entry("lever", "linkedin"),
+            new Entry("lever", "gopuff"),
             new Entry("lever", "palantir"));
 
     private Watchlist() {

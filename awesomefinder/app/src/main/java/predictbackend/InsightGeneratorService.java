@@ -35,12 +35,11 @@ public class InsightGeneratorService {
     /** Cap on how many detected patterns go into one prompt. */
     private static final int MAX_PATTERNS = 6;
 
-    private static final String SYSTEM_PROMPT =
-            "You are a corporate intelligence engine. You are given statistics derived from a "
+    private static final String SYSTEM_PROMPT = "You are a corporate intelligence engine. You are given statistics derived from a "
             + "company's public job postings: how many roles are open, how many were posted in the "
             + "last 30 days versus the 30 days before, how many came down, and the mix by function, "
-            + "seniority and country. Explain what the hiring pattern suggests about the company's "
-            + "current priorities. Be concrete and cite the numbers you were given. Do not invent "
+            + "seniority and country. Explain what the hiring pattern as well as signals suggest about the company's "
+            + "current priorities, and in the last line deduct a reasonable guess for the company's future performance based on this data. Be concrete and cite the numbers you were given. Do not invent "
             + "funding rounds, revenue, headcount or any fact not present in the input. If the "
             + "sample is small, say the signal is weak. "
             + "Respond with JSON only, in exactly this shape: "
@@ -275,20 +274,20 @@ public class InsightGeneratorService {
 
         StringBuilder read = new StringBuilder();
         read.append(s.display()).append(" has ").append(s.openRoles)
-            .append(" open role").append(s.openRoles == 1 ? "" : "s")
-            .append(", ").append(s.newLast30).append(" posted in the last 30 days against ")
-            .append(s.prev30).append(" in the 30 days before that (")
-            .append(s.velocity > 0 ? "+" : "").append((long) s.velocity).append("%). ");
+                .append(" open role").append(s.openRoles == 1 ? "" : "s")
+                .append(", ").append(s.newLast30).append(" posted in the last 30 days against ")
+                .append(s.prev30).append(" in the 30 days before that (")
+                .append(s.velocity > 0 ? "+" : "").append((long) s.velocity).append("%). ");
 
         if (!s.functionMix.isEmpty()) {
             read.append("Hiring is weighted toward ")
-                .append(CompanyStats.pretty(s.topFunction))
-                .append(", concentrated in ").append(s.topLocation).append(". ");
+                    .append(CompanyStats.pretty(s.topFunction))
+                    .append(", concentrated in ").append(s.topLocation).append(". ");
         }
         if (s.closedLast30 > 0) {
             read.append(s.closedLast30).append(" role")
-                .append(s.closedLast30 == 1 ? " came" : "s came")
-                .append(" down in the same window. ");
+                    .append(s.closedLast30 == 1 ? " came" : "s came")
+                    .append(" down in the same window. ");
         }
         if (s.newLast30 + s.prev30 < 4) {
             read.append("Too few recent postings to read much into the direction.");

@@ -237,3 +237,62 @@ a { color: inherit; text-decoration: none; }
   .grid { grid-template-columns: 1fr; }
   .bar { grid-template-columns: 74px minmax(0, 1fr) 32px; }
 }
+
+/* ---- Accordion Dropdown Styles ---------------------------------- */
+
+.co-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding: 8px 12px;
+  background: #1f3834;
+  border: 1px solid #33524c;
+  border-radius: 4px;
+  color: #a4b3a8;
+  font-size: 11.5px;
+  font-family: 'DM Mono', monospace;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.co-toggle:hover {
+  background: #284742;
+  color: #eef1ea;
+  border-color: var(--accent);
+}
+
+.co-toggle.active {
+  border-color: var(--accent);
+  color: #eef1ea;
+}
+
+.chevron {
+  transition: transform 0.2s ease;
+}
+
+.chevron.open {
+  transform: rotate(180deg);
+}
+
+.co-body {
+  margin-top: 10px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  border-left: 2px solid var(--accent);
+  animation: fadeIn 0.15s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

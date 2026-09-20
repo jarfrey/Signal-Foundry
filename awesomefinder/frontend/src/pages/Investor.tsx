@@ -1,50 +1,53 @@
-import { useEffect, useMemo, useState } from 'react'
-import { ArrowLeft } from 'lucide-react'
-import { getCompanyTrends } from '../api'
-import type { CompanyTrend } from '../types'
-
-type Sort = 'velocity' | 'volume'
+import { useEffect, useMemo, useState } from "react";
+import { getCompanyTrends } from "../api";
+import type { CompanyTrend } from "../types";
+import { ArrowLeft, ChevronDown } from "lucide-react";
+type Sort = "velocity" | "volume";
 
 export default function Investor() {
-  const [trends, setTrends] = useState<CompanyTrend[]>([])
-  const [live, setLive] = useState(true)
-  const [loading, setLoading] = useState(true)
-  const [sort, setSort] = useState<Sort>('velocity')
+  const [trends, setTrends] = useState<CompanyTrend[]>([]);
+  const [live, setLive] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [sort, setSort] = useState<Sort>("velocity");
 
   useEffect(() => {
     getCompanyTrends().then((result) => {
-      setTrends(result.trends)
-      setLive(result.live)
-      setLoading(false)
-    })
-  }, [])
+      setTrends(result.trends);
+      setLive(result.live);
+      setLoading(false);
+    });
+  }, []);
 
   const ordered = useMemo(
     () =>
       [...trends].sort((a, b) =>
-        sort === 'velocity' ? b.velocity - a.velocity : b.openRoles - a.openRoles
+        sort === "velocity"
+          ? b.velocity - a.velocity
+          : b.openRoles - a.openRoles,
       ),
-    [sort, trends]
-  )
+    [sort, trends],
+  );
 
   const totals = useMemo(
     () => ({
       roles: trends.reduce((sum, t) => sum + t.openRoles, 0),
       fresh: trends.reduce((sum, t) => sum + t.newThisMonth, 0),
     }),
-    [trends]
-  )
+    [trends],
+  );
 
   // True only if every card came back with a model-written read.
   const allModelWritten =
-    trends.length > 0 && trends.every((t) => t.insightSource === 'nemotron')
+    trends.length > 0 && trends.every((t) => t.insightSource === "nemotron");
 
   return (
     <main className="shell dark">
       <nav className="topbar">
         <a className="brand" href="#/">
           <span className="brand-mark" />
-          <span>signal<span className="brand-accent">foundry</span></span>
+          <span>
+            signal<span className="brand-accent">foundry</span>
+          </span>
         </a>
         <a className="back" href="#/">
           <ArrowLeft size={14} /> Back
@@ -55,16 +58,22 @@ export default function Investor() {
         <p className="kicker">FOR INVESTORS</p>
         <h1>Hiring signals</h1>
         <p>
-          {trends.length} companies · {totals.roles} open roles · {totals.fresh} posted in
-          the last 30 days. Velocity compares roles posted in the last 30 days against the
-          30 days before that.
+          {trends.length} companies · {totals.roles} open roles · {totals.fresh}{" "}
+          posted in the last 30 days. Velocity compares roles posted in the last
+          30 days against the 30 days before that.
         </p>
 
         <div className="tabs">
-          <button className={sort === 'velocity' ? 'on' : ''} onClick={() => setSort('velocity')}>
+          <button
+            className={sort === "velocity" ? "on" : ""}
+            onClick={() => setSort("velocity")}
+          >
             Fastest moving
           </button>
-          <button className={sort === 'volume' ? 'on' : ''} onClick={() => setSort('volume')}>
+          <button
+            className={sort === "volume" ? "on" : ""}
+            onClick={() => setSort("volume")}
+          >
             Most open roles
           </button>
         </div>
@@ -81,7 +90,8 @@ export default function Investor() {
 
         {!loading && !live && (
           <p className="notice">
-            SAMPLE DATA — /api/trends is not responding. Run the backend to see real companies.
+            SAMPLE DATA — /api/trends is not responding. Run the backend to see
+            real companies.
           </p>
         )}
         {!loading && live && !allModelWritten && (
@@ -92,12 +102,19 @@ export default function Investor() {
         )}
       </section>
     </main>
-  )
+  );
 }
 
 function CompanyCard({ company }: { company: CompanyTrend }) {
+  // State to track if the summary accordion is open or closed
+  const [isOpen, setIsOpen] = useState(false);
+
   const direction =
-    company.trend === 'Growing' ? 'up' : company.trend === 'Cooling' ? 'down' : 'flat'
+    company.trend === "Growing"
+      ? "up"
+      : company.trend === "Cooling"
+        ? "down"
+        : "flat";
 
   return (
     <article className="co">
@@ -107,23 +124,42 @@ function CompanyCard({ company }: { company: CompanyTrend }) {
           <p className="co-sector">{company.sector}</p>
         </div>
         <div className={`velocity ${direction}`}>
-          {company.velocity > 0 ? '+' : ''}
+          {company.velocity > 0 ? "+" : ""}
           {Math.round(company.velocity)}%<span>30D</span>
         </div>
       </div>
 
-      {company.headline && <p className="co-headline">{company.headline}</p>}
+      {/* Accordion Toggle Header */}
+      <button
+        type="button"
+        className={`co-toggle ${isOpen ? "active" : ""}`}
+        onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+      >
+        <span>{isOpen ? "Hide AI Summary" : "View AI Summary"}</span>
+        <ChevronDown size={16} className={`chevron ${isOpen ? "open" : ""}`} />
+      </button>
 
-      <p className="co-read">{company.read}</p>
+      {/* Collapsible Content Section */}
+      {isOpen && (
+        <div className="co-body">
+          {company.headline && (
+            <p className="co-headline">{company.headline}</p>
+          )}
 
-      {company.bullets?.length > 0 && (
-        <ul className="co-bullets">
-          {company.bullets.map((bullet) => (
-            <li key={bullet}>{bullet}</li>
-          ))}
-        </ul>
+          <p className="co-read">{company.read}</p>
+
+          {company.bullets?.length > 0 && (
+            <ul className="co-bullets">
+              {company.bullets.map((bullet) => (
+                <li key={bullet}>{bullet}</li>
+              ))}
+            </ul>
+          )}
+        </div>
       )}
 
+      {/* Department Mix Bars */}
       <div className="bars">
         {company.mix.map((slice) => (
           <div className="bar" key={slice.label}>
@@ -145,9 +181,9 @@ function CompanyCard({ company }: { company: CompanyTrend }) {
         </span>
         <span>{company.topLocation}</span>
         <span className={`prov ${company.insightSource}`}>
-          {company.insightSource === 'nemotron' ? 'Nemotron' : 'Computed'}
+          {company.insightSource === "nemotron" ? "Nemotron" : "Computed"}
         </span>
       </div>
     </article>
-  )
+  );
 }
